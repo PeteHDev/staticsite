@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class TestHMTLNode(unittest.TestCase):
     def test_props_to_html_a(self):
@@ -68,3 +68,47 @@ class TestLeafNode(unittest.TestCase):
         node = LeafNode("p", None, None)
         with self.assertRaises(ValueError):
             node.to_html()
+
+class TestParentNode(unittest.TestCase):
+    def test_to_html_wtih_many_children(self):
+        node = ParentNode(
+            "p",
+            [
+                LeafNode("b", "Bold text"),
+                LeafNode(None, "Normal text"),
+                LeafNode("i", "italic text"),
+                LeafNode(None, "Normal text"),
+            ],
+        )
+        self.assertEqual(node.to_html(), "<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>")
+
+    def test_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+        )
+
+    def test_to_html_many_chilndren_and_grandchildren(self):
+        h1 = LeafNode("h1", "Title Header")
+        link1 = LeafNode("a", "Link one", {"href": "https:/one.com"})
+        link2 = LeafNode("a", "Link two", {"href": "https:/two.com"})
+        link3 = LeafNode("a", "Link three", {"href": "https:/three.com"})
+        div1 = ParentNode("div", [link1, link2, link3], {"class": "class_1"})
+        p1 = LeafNode("p", "Paragraph one")
+        p2 = LeafNode("p", "Paragraph two")
+        p3 = LeafNode("p", "Paragraph three")
+        div2 = ParentNode("div", [p1, p2, p3], {"class": "class_2"})
+        body = ParentNode("body", [h1, div1, div2])
+        html = ParentNode("html", [body])
+
+        self.assertEqual(html.to_html(),
+            '<html><body><h1>Title Header</h1><div class="class_1"><a href="https:/one.com">Link one</a><a href="https:/two.com">Link two</a><a href="https:/three.com">Link three</a></div><div class="class_2"><p>Paragraph one</p><p>Paragraph two</p><p>Paragraph three</p></div></body></html>')
+        
