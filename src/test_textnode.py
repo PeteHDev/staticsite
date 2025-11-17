@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, split_text_node_into_sub_nodes
+from textnode import TextNode, TextType, split_text_node_into_sub_nodes, split_nodes_delimiter
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -36,7 +36,7 @@ class TestSplitNodesDelimiter(unittest.TestCase):
 
         node_one_code_block = TextNode("Only one `code` block", TextType.TEXT)
         self.assertEqual(split_text_node_into_sub_nodes(node_one_code_block, "`", TextType.CODE), 
-                         ["Only one ", TextNode("code", TextType.CODE), " block"])
+                         [TextNode("Only one ", TextType.TEXT), TextNode("code", TextType.CODE), " block"])
         
         node_all_code = TextNode("`ALL CODE`", TextType.TEXT)
         self.assertEqual(split_text_node_into_sub_nodes(node_all_code, "`", TextType.CODE), 
@@ -92,7 +92,22 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         with self.assertRaises(Exception):
             split_text_node_into_sub_nodes(node_invalid_markdown, "_", TextType.ITALIC)
 
-    
+    def test_split_node_delimiter(self):
+        nodes = [TextNode("_ITALIC_ **BOLD** `CODE`", TextType.TEXT)]
+        print("\n>>>>> ")
+        print(nodes)
+        nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+        print("\n>>>>> ")
+        print(nodes)
+        nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+        print("\n>>>>> ")
+        print(nodes)
+        nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+        print("\n>>>>> ")
+        print(nodes)
+        self.assertEqual(nodes, [TextNode("ITALIC", TextType.ITALIC), 
+                                 TextNode("BOLD", TextType.BOLD),
+                                 TextNode("CODE", TextType.CODE)])
 
         
 if __name__ == "__main__":

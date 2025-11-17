@@ -24,6 +24,10 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
 
     for old_node in old_nodes:
+        if isinstance(old_node, str):
+            new_nodes.append(TextNode(old_node, TextType.TEXT))
+            continue
+
         if old_node.text_type != TextType.TEXT:
             new_nodes.append(old_node)
             continue
@@ -37,12 +41,15 @@ def split_text_node_into_sub_nodes(text_node, delimiter, text_type):
     split = text_node.text.split(delimiter)
     L = len(split)
     if L == 1:
-        return split
+        return text_node
     if L % 2 == 0:
-        raise Exception(f"invalid Markdown: <{delimiter}> delimiter has to be closed")
+        raise Exception(f"invalid Markdown: <{delimiter}> delimiter has to be closed. No delimiters can be mixed")
     
     for i in range(1, len(split), 2):
         split[i] = TextNode(split[i], text_type)
 
-    return [node for node in split if (isinstance(node, str) and node != "") or not isinstance(node, str)]
+    for j in range(0, len(split), 2):
+        split[i] = TextNode(split[i], TextType.TEXT)
+
+    return [node for node in split if node.text != ""]
 
