@@ -22,24 +22,27 @@ class TextNode:
     
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
-    for old in old_nodes:
-        if old.text_type != TextType.TEXT:
-            new_nodes.append(old)
+
+    for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            new_nodes.append(old_node)
             continue
+        
+        new_nodes.extend(split_text_node_into_sub_nodes(old_node, delimiter, text_type))
+    
+    return new_nodes
 
-        tmp_nodes = split_into_code_nodes(old)
-            
 
-
-def split_into_code_nodes(text_node, delimiter="`"):
+def split_text_node_into_sub_nodes(text_node, delimiter, text_type):
     split = text_node.text.split(delimiter)
     L = len(split)
     if L == 1:
         return split
     if L % 2 == 0:
-        raise Exception("invalid Markdown: code blocks should be enclosed in a pair of backticks <`>")
-              
+        raise Exception(f"invalid Markdown: <{delimiter}> delimiter has to be closed")
+    
     for i in range(1, len(split), 2):
-        split[i] = TextNode(split[i], TextType.CODE)
+        split[i] = TextNode(split[i], text_type)
 
     return [node for node in split if (isinstance(node, str) and node != "") or not isinstance(node, str)]
+

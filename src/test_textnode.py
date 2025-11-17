@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, split_into_code_nodes
+from textnode import TextNode, TextType, split_text_node_into_sub_nodes
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -31,19 +31,69 @@ class TestTextNode(unittest.TestCase):
 class TestSplitNodesDelimiter(unittest.TestCase):
     def test_split_into_code_nodes(self):
         node_no_code = TextNode("There is no code here", TextType.TEXT)
-        self.assertEqual(split_into_code_nodes(node_no_code), ["There is no code here"])
+        self.assertEqual(split_text_node_into_sub_nodes(node_no_code, "`", TextType.CODE), 
+                         ["There is no code here"])
 
         node_one_code_block = TextNode("Only one `code` block", TextType.TEXT)
-        self.assertEqual(split_into_code_nodes(node_one_code_block), ["Only one ", 
-                                                                      TextNode("code", TextType.CODE), 
-                                                                      " block"])
+        self.assertEqual(split_text_node_into_sub_nodes(node_one_code_block, "`", TextType.CODE), 
+                         ["Only one ", TextNode("code", TextType.CODE), " block"])
         
         node_all_code = TextNode("`ALL CODE`", TextType.TEXT)
-        self.assertEqual(split_into_code_nodes(node_all_code), [TextNode("ALL CODE", TextType.CODE)])
+        self.assertEqual(split_text_node_into_sub_nodes(node_all_code, "`", TextType.CODE), 
+                         [TextNode("ALL CODE", TextType.CODE)])
 
         node_two_code_blocks = TextNode("`First code block` and `Second code block`", TextType.TEXT)
-        self.assertEqual(split_into_code_nodes(node_two_code_blocks), [TextNode("First code block", TextType.CODE),
-                                                                       " and ",
-                                                                       TextNode("Second code block", TextType.CODE)])
+        self.assertEqual(split_text_node_into_sub_nodes(node_two_code_blocks, "`", TextType.CODE), 
+                         [TextNode("First code block", TextType.CODE), " and ", TextNode("Second code block", TextType.CODE)])
+        
+        node_invalid_markdown = TextNode("Some `cOdE", TextType.TEXT)
+        with self.assertRaises(Exception):
+            split_text_node_into_sub_nodes(node_invalid_markdown, "`", TextType.CODE)
+
+    def test_split_into_bold_nodes(self):
+        node_no_BOLD = TextNode("There is no BOLD here", TextType.TEXT)
+        self.assertEqual(split_text_node_into_sub_nodes(node_no_BOLD, "**", TextType.BOLD), 
+                         ["There is no BOLD here"])
+
+        node_one_BOLD_block = TextNode("Only one **BOLD** block", TextType.TEXT)
+        self.assertEqual(split_text_node_into_sub_nodes(node_one_BOLD_block, "**", TextType.BOLD), 
+                         ["Only one ", TextNode("BOLD", TextType.BOLD), " block"])
+        
+        node_all_BOLD = TextNode("**ALL BOLD**", TextType.TEXT)
+        self.assertEqual(split_text_node_into_sub_nodes(node_all_BOLD, "**", TextType.BOLD), 
+                         [TextNode("ALL BOLD", TextType.BOLD)])
+
+        node_two_BOLD_blocks = TextNode("**First BOLD block** and **Second BOLD block**", TextType.TEXT)
+        self.assertEqual(split_text_node_into_sub_nodes(node_two_BOLD_blocks, "**", TextType.BOLD), 
+                         [TextNode("First BOLD block", TextType.BOLD), " and ", TextNode("Second BOLD block", TextType.BOLD)])
+        
+        node_invalid_markdown = TextNode("Some **BOLD", TextType.TEXT)
+        with self.assertRaises(Exception):
+            split_text_node_into_sub_nodes(node_invalid_markdown, "**", TextType.BOLD)
+
+    def test_split_into_italic_nodes(self):
+        node_no_ITALIC = TextNode("There is no ITALIC here", TextType.TEXT)
+        self.assertEqual(split_text_node_into_sub_nodes(node_no_ITALIC, "_", TextType.ITALIC), 
+                         ["There is no ITALIC here"])
+
+        node_one_ITALIC_block = TextNode("Only one _ITALIC_ block", TextType.TEXT)
+        self.assertEqual(split_text_node_into_sub_nodes(node_one_ITALIC_block, "_", TextType.ITALIC), 
+                         ["Only one ", TextNode("ITALIC", TextType.ITALIC), " block"])
+        
+        node_all_ITALIC = TextNode("_ALL ITALIC_", TextType.TEXT)
+        self.assertEqual(split_text_node_into_sub_nodes(node_all_ITALIC, "_", TextType.ITALIC), 
+                         [TextNode("ALL ITALIC", TextType.ITALIC)])
+
+        node_two_ITALIC_blocks = TextNode("_First ITALIC block_ and _Second ITALIC block_", TextType.TEXT)
+        self.assertEqual(split_text_node_into_sub_nodes(node_two_ITALIC_blocks, "_", TextType.ITALIC), 
+                         [TextNode("First ITALIC block", TextType.ITALIC), " and ", TextNode("Second ITALIC block", TextType.ITALIC)])
+        
+        node_invalid_markdown = TextNode("Some _ITALIC", TextType.TEXT)
+        with self.assertRaises(Exception):
+            split_text_node_into_sub_nodes(node_invalid_markdown, "_", TextType.ITALIC)
+
+    
+
+        
 if __name__ == "__main__":
     unittest.main()
