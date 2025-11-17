@@ -41,15 +41,15 @@ def split_text_node_into_sub_nodes(text_node, delimiter, text_type):
     split = text_node.text.split(delimiter)
     L = len(split)
     if L == 1:
-        return text_node
+        return [text_node]
     if L % 2 == 0:
-        raise Exception(f"invalid Markdown: <{delimiter}> delimiter has to be closed. No delimiters can be mixed")
+        raise Exception(f"invalid Markdown: <{delimiter}> delimiter has to be closed. Delimiters can not be mixed")
     
     for i in range(1, len(split), 2):
         split[i] = TextNode(split[i], text_type)
 
     for j in range(0, len(split), 2):
-        split[i] = TextNode(split[i], TextType.TEXT)
+        split[j] = TextNode(split[j], TextType.TEXT)
 
     return [node for node in split if node.text != ""]
 
