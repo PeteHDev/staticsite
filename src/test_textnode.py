@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, split_text_node_into_sub_nodes, split_nodes_delimiter
+from textnode import TextNode, TextType, split_text_node_into_sub_nodes, split_nodes_delimiter, split_text_node_into_link_nodes
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -125,6 +125,40 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
             nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
 
+class TestSplitNodesLinksAndImages(unittest.TestCase):
+    def test_split_text_into_link_nodes_none(self):
+        node = TextNode("TextNode without links", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_link_nodes(node), [node])
+
+    def test_split_text_into_link_nodes_one_link(self):
+        node = TextNode("[boot.dev](https://boot.dev)", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_link_nodes(node), 
+                             [TextNode("boot.dev", TextType.LINK, "https://boot.dev")])
         
+        node = TextNode("TextNode with a link: [boot.dev](https://boot.dev)", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_link_nodes(node), 
+                             [TextNode("TextNode with a link: ", TextType.TEXT),
+                              TextNode("boot.dev", TextType.LINK, "https://boot.dev")])
+        
+        node = TextNode("TextNode with a link [boot.dev](https://boot.dev) in the middle", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_link_nodes(node), 
+                             [TextNode("TextNode with a link ", TextType.TEXT),
+                              TextNode("boot.dev", TextType.LINK, "https://boot.dev"),
+                              TextNode(" in the middle", TextType.TEXT)])
+        
+        node = TextNode("[boot.dev](https://boot.dev) link in the beginning", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_link_nodes(node), 
+                             [TextNode("boot.dev", TextType.LINK, "https://boot.dev"),
+                              TextNode(" link in the beginning", TextType.TEXT)])
+        
+    def test_split_text_into_link_nodes_multiple_links(self):
+        node = TextNode("[boot.dev](https://boot.dev) [google](https://google.com) [wikipedia](https://wikipedia.org)", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_link_nodes(node), 
+                             [TextNode("boot.dev", TextType.LINK, "https://boot.dev"),
+                              TextNode(" ", TextType.TEXT),
+                              TextNode("google", TextType.LINK, "https://google.com"),
+                              TextNode(" ", TextType.TEXT),
+                              TextNode("wikipedia", TextType.LINK, "https://wikipedia.org")])
+
 if __name__ == "__main__":
     unittest.main()
