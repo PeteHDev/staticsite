@@ -107,7 +107,7 @@ def split_nodes_image(old_nodes):
             new_nodes.append(old_node)
             continue
         
-        new_nodes.extend(split_text_node_into_sub_nodes(old_node))
+        new_nodes.extend(split_text_node_into_image_nodes(old_node))
     
     return new_nodes
 
@@ -123,6 +123,6 @@ def split_nodes_link(old_nodes):
             new_nodes.append(old_node)
             continue
         
-        new_nodes.extend(split_text_node_into_sub_nodes(old_node))
+        new_nodes.extend(split_text_node_into_link_nodes(old_node))
     
     return new_nodes
