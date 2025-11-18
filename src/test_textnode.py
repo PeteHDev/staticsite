@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, split_text_node_into_sub_nodes, split_nodes_delimiter, split_text_node_into_link_nodes
+from textnode import TextNode, TextType, split_text_node_into_sub_nodes, split_nodes_delimiter, split_text_node_into_link_nodes, split_text_node_into_image_nodes
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -159,6 +159,40 @@ class TestSplitNodesLinksAndImages(unittest.TestCase):
                               TextNode("google", TextType.LINK, "https://google.com"),
                               TextNode(" ", TextType.TEXT),
                               TextNode("wikipedia", TextType.LINK, "https://wikipedia.org")])
+        
+    def test_split_text_into_image_nodes_none(self):
+        node = TextNode("TextNode without images", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_image_nodes(node), [node])
+
+    def test_split_text_into_image_nodes_one_image(self):
+        node = TextNode("![fake image site](https://fakeimagesite.com/img.png)", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_image_nodes(node), 
+                             [TextNode("fake image site", TextType.IMAGE, "https://fakeimagesite.com/img.png")])
+        
+        node = TextNode("TextNode with a IMAGE: ![fake image site](https://fakeimagesite.com/img.png)", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_image_nodes(node), 
+                             [TextNode("TextNode with a IMAGE: ", TextType.TEXT),
+                              TextNode("fake image site", TextType.IMAGE, "https://fakeimagesite.com/img.png")])
+        
+        node = TextNode("TextNode with a IMAGE ![fake image site](https://fakeimagesite.com/img.png) in the middle", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_image_nodes(node), 
+                             [TextNode("TextNode with a IMAGE ", TextType.TEXT),
+                              TextNode("fake image site", TextType.IMAGE, "https://fakeimagesite.com/img.png"),
+                              TextNode(" in the middle", TextType.TEXT)])
+        
+        node = TextNode("![fake image site](https://fakeimagesite.com/img.png) IMAGE in the beginning", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_image_nodes(node), 
+                             [TextNode("fake image site", TextType.IMAGE, "https://fakeimagesite.com/img.png"),
+                              TextNode(" IMAGE in the beginning", TextType.TEXT)])
+        
+    def test_split_text_into_image_nodes_multiple_images(self):
+        node = TextNode("![fake image site](https://fakeimagesite.com/img.png) ![example image](https://example.com/example.jpg) ![wikipedia logo](https://wikipedia.org/logo.webp)", TextType.TEXT)
+        self.assertListEqual(split_text_node_into_image_nodes(node), 
+                             [TextNode("fake image site", TextType.IMAGE, "https://fakeimagesite.com/img.png"),
+                              TextNode(" ", TextType.TEXT),
+                              TextNode("example image", TextType.IMAGE, "https://example.com/example.jpg"),
+                              TextNode(" ", TextType.TEXT),
+                              TextNode("wikipedia logo", TextType.IMAGE, "https://wikipedia.org/logo.webp")])
 
 if __name__ == "__main__":
     unittest.main()

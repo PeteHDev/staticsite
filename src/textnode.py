@@ -76,6 +76,25 @@ def split_text_node_into_link_nodes(text_node):
     new_nodes.append(TextNode(remaining_text, TextType.TEXT))
     return [node for node in new_nodes if node.text != ""]
 
+def split_text_node_into_image_nodes(text_node):
+    if not isinstance(text_node, TextNode):
+        raise TypeError(f"error: expected <class 'TextNode'>, received {type(text_node)}")
+    
+    links = extract_markdown_images(text_node.text)
+    if len(links) == 0:
+        return [text_node]
+    
+    new_nodes = []
+    remaining_text = text_node.text
+    for link in links:
+        image_node = TextNode(link[0], TextType.IMAGE, link[1])
+        sub_text = remaining_text.split(f"![{link[0]}]({link[1]})")
+        new_nodes.extend([TextNode(sub_text[0], TextType.TEXT), image_node])
+        remaining_text = sub_text[1]
+
+    new_nodes.append(TextNode(remaining_text, TextType.TEXT))
+    return [node for node in new_nodes if node.text != ""]
+
 def split_nodes_image(old_nodes):
     new_nodes = []
 
