@@ -37,7 +37,6 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     
     return new_nodes
 
-
 def split_text_node_into_sub_nodes(text_node, delimiter, text_type):
     if not isinstance(text_node, TextNode):
         raise TypeError(f"error: expected <class 'TextNode'>, received {type(text_node)}")
@@ -126,3 +125,12 @@ def split_nodes_link(old_nodes):
         new_nodes.extend(split_text_node_into_link_nodes(old_node))
     
     return new_nodes
+
+def text_to_textnodes(text):
+    initial_node = TextNode(text, TextType.TEXT)
+    nodes = split_nodes_delimiter([initial_node], "`", TextType.CODE)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+    return nodes
