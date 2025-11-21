@@ -127,6 +127,9 @@ def split_nodes_link(old_nodes):
     return new_nodes
 
 def text_to_textnodes(text):
+    if text is None:
+        raise TypeError("TypeError: expected str, recieved None")
+    
     initial_node = TextNode(text, TextType.TEXT)
     nodes = split_nodes_delimiter([initial_node], "`", TextType.CODE)
     nodes = split_nodes_image(nodes)

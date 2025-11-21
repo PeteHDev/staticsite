@@ -264,6 +264,40 @@ This is text with a link [to boot dev](https://www.boot.dev) and
         )
 
 class TestTextToTextNodes(unittest.TestCase):
+    def test_text_to_textnodes_empty(self):
+        text = ""
+        nodes = text_to_textnodes(text)
+        self.assertListEqual([TextNode("", TextType.TEXT)], nodes)
+
+        text = None
+        with self.assertRaises(TypeError):
+            nodes = text_to_textnodes(text)
+
+    def test_to_textnodes_mono(self):
+        text = "TEXT"
+        nodes = text_to_textnodes(text)
+        self.assertListEqual([TextNode("TEXT", TextType.TEXT)], nodes)
+
+        text = "**BOLD**"
+        nodes = text_to_textnodes(text)
+        self.assertListEqual([TextNode("BOLD", TextType.BOLD)], nodes)
+
+        text = "_ITALIC_"
+        nodes = text_to_textnodes(text)
+        self.assertListEqual([TextNode("ITALIC", TextType.ITALIC)], nodes)
+
+        text = "`CODE`"
+        nodes = text_to_textnodes(text)
+        self.assertListEqual([TextNode("CODE", TextType.CODE)], nodes)
+
+        text = "![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg)"
+        nodes = text_to_textnodes(text)
+        self.assertListEqual([TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg")], nodes)
+
+        text = "[link](https://boot.dev)"
+        nodes = text_to_textnodes(text)
+        self.assertListEqual([TextNode("link", TextType.LINK, "https://boot.dev")], nodes)
+
     def test_text_to_textnodes_mixed(self):
         text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
         nodes = text_to_textnodes(text)
