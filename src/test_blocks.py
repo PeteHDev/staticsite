@@ -87,6 +87,7 @@ class TestBlockType(unittest.TestCase):
         block8 = "asd ### not a Heading"
         block9 = "# H"
         block10 = ""
+        block11 = "### "
 
         self.assertEqual(block_to_block_type(block1), BlockType.H)
         self.assertEqual(block_to_block_type(block2), BlockType.H)
@@ -98,9 +99,10 @@ class TestBlockType(unittest.TestCase):
         self.assertEqual(block_to_block_type(block8), BlockType.P)
         self.assertEqual(block_to_block_type(block9), BlockType.H)
         self.assertEqual(block_to_block_type(block10), BlockType.P)
+        self.assertEqual(block_to_block_type(block11), BlockType.H)
         
     def test_block_type_code(self):
-        code = "```print('Hello, World!')\nprint('Hello, World! Again!')\nprint('Hello, World! Again...')\n```"
+        code = "```\nprint('Hello, World!')\nprint('Hello, World! Again!')\nprint('Hello, World! Again...')\n```"
         code1 = "```\n```"
         not_code = "``print('Hello, World!')``"
         not_code1 = "``` ```"
