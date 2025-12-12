@@ -1,47 +1,91 @@
 from blocks import markdown_to_blocks, block_to_block_type, BlockType
-from htmlnode import HTMLNode, ParentNode, LeafNode
+from textnode import text_to_textnodes, TextNode, TextType
+from htmlnode import text_node_to_html_node, ParentNode
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
+    children = []
     for block in blocks:
-        blockType = block_to_block_type(block)
-    return blocks
+        children.append(block_to_html_node(block))
+    return ParentNode("div", children)
 
-def block_to_html_node(block, blockType):
-    text = block_to_text(block, blockType)
-    if blockType == BlockType.P:
-        return ParentNode("p", None, None, None)
-    elif blockType == BlockType.H:
-        rank = len(block.split(" ", 1)[0])
-        return ParentNode(f"h{rank}", block.lstrip("#"*rank + " "), None, None)
-    elif blockType == BlockType.CODE:
-        return ParentNode("code", block.strip("```"), None, None)
-    elif blockType == BlockType.QUOTE:
-        return ParentNode("blockquote", block, None, None)
-    elif blockType == BlockType.U_LIST:
-        return ParentNode("ul", block, None, None)
-    elif blockType == BlockType.O_LIST:
-        return ParentNode("ol", block, None, None)
+def block_to_html_node(block):
+    block_type = block_to_block_type(block)
+    if block_type == BlockType.P:
+        return paragraph_to_html_node(block)
+    elif block_type == BlockType.H:
+        return heading_to_html_node(block)
+    elif block_type == BlockType.CODE:
+        return code_to_html_node(block)
+    elif block_type == BlockType.QUOTE:
+        return quote_to_html_node(block)
+    elif block_type == BlockType.O_LIST:
+        return ordered_list_to_html_node(block)
+    elif block_type == BlockType.U_LIST:
+        return unordered_list_to_html_node(block)
     else:
-        return ParentNode()
+        return None
+
+def text_to_children(text):
+    text_nodes = text_to_textnodes(text)
+    children = []
+    for text_node in text_nodes:
+        html_node = text_node_to_html_node(text_node)
+        children.append(html_node)
+
+    return children
+
+def paragraph_to_html_node(block):
+    if block_to_block_type(block) != BlockType.P:
+        raise ValueError("invalid paragraph block")
+    lines = block.split("\n")
+    paragraph = " ".join(lines)
+    children = text_to_children(paragraph)
+    return ParentNode("p", children)
+
+def heading_to_html_node(block):
+    if block_to_block_type(block) != BlockType.H:
+        raise ValueError("invalid heading block")
+    marker_and_text = block.split(" ", 1)
+    tag = f"h{len(marker_and_text[0])}"
+    if len(marker_and_text) == 1:
+        return ParentNode(tag, text_to_children(""))
     
-def block_to_text(block, blockType):
-    if blockType == BlockType.H:
-        return block.split(" ", 1)[1]
-    elif blockType == BlockType.QUOTE or \
-    blockType == BlockType.U_LIST or \
-    blockType == BlockType.O_LIST:
-        lines = block.split("\n")
-        return "\n".join([cleanup_list_item(line) for line in lines])
-    elif blockType == BlockType.CODE:
-        return block.lstrip("```").rstrip("```")
-    else:
-        return block
-    
+    return ParentNode(tag, text_to_children(marker_and_text[1]))
+
 def cleanup_list_item(item):
     split = item.split(" ", 1)
-    if len(split) == 2:
-        return split[1]
-    return ""
-def text_to_children(text):
-    pass
+    if len(split) == 1:
+        return ""
+    return split[1]
+
+def quote_to_html_node(block):
+    if block_to_block_type(block) != BlockType.QUOTE:
+        raise ValueError("invalid quote block")
+    lines = block.split("\n")
+    items = [cleanup_list_item(line) for line in lines]
+    text = " ".join(items)
+    return ParentNode("blockquote", text_to_children(text))
+
+def list_children(block):
+    lines = block.split("\n")
+    items = [cleanup_list_item(line) for line in lines]
+    return [ParentNode("li", text_to_children(item)) for item in items]
+
+def ordered_list_to_html_node(block):
+    if block_to_block_type(block) != BlockType.O_LIST:
+        raise ValueError("invalid ordered list block")
+    return ParentNode("ol", list_children(block))
+
+def unordered_list_to_html_node(block):
+    if block_to_block_type(block) != BlockType.U_LIST:
+        raise ValueError("invalid unordered list block")
+    return ParentNode("ul", list_children(block))
+
+def code_to_html_node(block):
+    if block_to_block_type(block) != BlockType.CODE:
+        raise ValueError("invalid code block")
+    text = block[4:len(block)-3]
+    text_node = TextNode(text, TextType.CODE)
+    children = [text_node_to_html_node(text_node)]
+    return ParentNode("pre", children)
