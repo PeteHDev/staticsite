@@ -2,12 +2,12 @@ import re
 from enum import Enum
 
 class BlockType(Enum):
-    P = 1
-    H = 2
-    CODE = 3
-    QUOTE = 4
-    U_LIST = 5
-    O_LIST = 6
+    P = "paragraph"
+    H = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    U_LIST = "unordered_list"
+    O_LIST = "ordered_list"
 
 def markdown_to_blocks(markdown):
     newMarkdown = re.sub(r"\n[^\S\r\n]*", "\n", markdown)
@@ -19,10 +19,11 @@ def markdown_to_blocks(markdown):
 def block_to_block_type(block):
     if re.match(r"^#{1,6} ", block):
         return BlockType.H
-    elif block.startswith("```") and block.endswith("```"):
-        return BlockType.CODE
     
     lines = block.split("\n")
+    if len(lines) > 1 and lines[0].startswith("```") and lines[-1].startswith("```"):
+        return BlockType.CODE
+    
     quote = True
     unordered_list = True
     ordered_list = True

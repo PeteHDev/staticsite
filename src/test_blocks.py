@@ -100,11 +100,15 @@ class TestBlockType(unittest.TestCase):
         self.assertEqual(block_to_block_type(block10), BlockType.P)
         
     def test_block_type_code(self):
-        code = "```print('Hello, World!')\nprint('Hello, World! Again!')\nprint('Hello, World! Again...')```"
+        code = "```print('Hello, World!')\nprint('Hello, World! Again!')\nprint('Hello, World! Again...')\n```"
+        code1 = "```\n```"
         not_code = "``print('Hello, World!')``"
+        not_code1 = "``` ```"
 
         self.assertEqual(block_to_block_type(code), BlockType.CODE)
+        self.assertEqual(block_to_block_type(code1), BlockType.CODE)
         self.assertEqual(block_to_block_type(not_code), BlockType.P)
+        self.assertEqual(block_to_block_type(not_code1), BlockType.P)
 
     def test_block_type_quote(self):
         quote = """>Some
