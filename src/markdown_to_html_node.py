@@ -6,7 +6,10 @@ def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
     children = []
     for block in blocks:
-        children.append(block_to_html_node(block))
+        node = block_to_html_node(block)
+        if not node:
+            continue
+        children.append(node)
     return ParentNode("div", children)
 
 def block_to_html_node(block):
@@ -63,7 +66,7 @@ def quote_to_html_node(block):
     if block_to_block_type(block) != BlockType.QUOTE:
         raise ValueError("invalid quote block")
     lines = block.split("\n")
-    items = [cleanup_list_item(line) for line in lines]
+    items = [line[1:] for line in lines]
     text = " ".join(items)
     return ParentNode("blockquote", text_to_children(text))
 
@@ -85,7 +88,9 @@ def unordered_list_to_html_node(block):
 def code_to_html_node(block):
     if block_to_block_type(block) != BlockType.CODE:
         raise ValueError("invalid code block")
-    text = block[4:len(block)-3]
+    lines = block.split("\n")
+    lines[-1] = ""
+    text = "\n".join(lines[1:])
     text_node = TextNode(text, TextType.CODE)
     children = [text_node_to_html_node(text_node)]
     return ParentNode("pre", children)
