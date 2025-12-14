@@ -1,5 +1,6 @@
 import re
 import os
+import shutil
 
 def extract_markdown_images(text):
     markdown_image_pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
@@ -13,17 +14,34 @@ def extract_markdown_links(text):
 
     return markdown_links
 
-def copy_files_from_to(source_path, destination_path):
-    if not os.path.exists(source_path):
-        raise ValueError(f"error: source path <{source_path}> does not exist")
-    if os.path.exists(destination_path):
-        if not os.path.isdir(destination_path):
-            raise ValueError(f"error: cannot copy to destination <{destination_path}>; it is not a directory")
-    else:
-        print("Destination folder does not exist...")
-        print("Creating...")
-        print(os.path.join(os.getcwd(), destination_path))
-        os.mkdir(destination_path)
+def copy_files_from_to(src_path, dst_path):
+    if not os.path.exists(src_path):
+        raise ValueError(f"error: src path <{src_path}> does not exist")
+    
+    cleanup_folder(dst_path)
+    
+    for item in os.listdir(src_path):
+        if os.path.isfile(item):
+            print(f"Copying {item}...")
+            shutil.copy(item, dst_path)
+        else:
+            src_subdir = os.path.join(src_path, item)
+            print(f"Copying {src_subdir}...")
+            dst_subdir = os.path.join(dst_path, item)
+            copy_files_from_to(src_subdir, dst_subdir)
+
     
 
-    return
+def cleanup_folder(path):
+    if os.path.exists(path):
+        if not os.path.isdir(path):
+            raise ValueError(f"error: destination <{path}> is not a directory")
+        shutil.rmtree(path)
+    else:
+        print(f"Destination {path} folder does not exist...")
+        print("Creating...")
+
+    os.mkdir(path)
+    print("Cleanup destination: " + os.path.join(os.getcwd(), path))
+
+
