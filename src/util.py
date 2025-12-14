@@ -30,8 +30,6 @@ def copy_files_from_to(src_path, dst_path):
             dst_subdir = os.path.join(dst_path, item)
             copy_files_from_to(full_path, dst_subdir)
 
-    
-
 def cleanup_folder(path):
     if os.path.exists(path):
         if not os.path.isdir(path):
@@ -41,5 +39,4 @@ def cleanup_folder(path):
         print(f"Creating {os.path.join(os.getcwd(), path)} directory")
 
     os.mkdir(path)
-
 
