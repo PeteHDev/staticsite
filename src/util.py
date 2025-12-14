@@ -21,14 +21,14 @@ def copy_files_from_to(src_path, dst_path):
     cleanup_folder(dst_path)
     
     for item in os.listdir(src_path):
-        if os.path.isfile(item):
-            print(f"Copying {item}...")
-            shutil.copy(item, dst_path)
+        full_path = os.path.join(src_path, item)
+        if os.path.isfile(full_path):
+            print(f"Copying file {full_path}...")
+            shutil.copy(full_path, dst_path)
         else:
-            src_subdir = os.path.join(src_path, item)
-            print(f"Copying {src_subdir}...")
+            print(f"Copying subdirectory {full_path}...")
             dst_subdir = os.path.join(dst_path, item)
-            copy_files_from_to(src_subdir, dst_subdir)
+            copy_files_from_to(full_path, dst_subdir)
 
     
 
@@ -38,10 +38,8 @@ def cleanup_folder(path):
             raise ValueError(f"error: destination <{path}> is not a directory")
         shutil.rmtree(path)
     else:
-        print(f"Destination {path} folder does not exist...")
-        print("Creating...")
+        print(f"Creating {os.path.join(os.getcwd(), path)} directory")
 
     os.mkdir(path)
-    print("Cleanup destination: " + os.path.join(os.getcwd(), path))
 
 
