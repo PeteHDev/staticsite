@@ -3,7 +3,7 @@ from blocks import markdown_to_blocks
 from markdown_to_html_node import markdown_to_html_node, block_to_html_node
 from pathlib import Path
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     if not os.path.isfile(from_path):
         raise Exception(f"source {from_path} does not exist or is not a file")
     
@@ -29,6 +29,8 @@ def generate_page(from_path, template_path, dest_path):
     embedded_html = node.to_html()
     page = template.replace("{{ Title }}", title)
     page = page.replace("{{ Content }}", embedded_html)
+    page = page.replace('href="/', f'href="{basepath}')
+    page = page.replace('src="/', f'src="{basepath}')
     
     if os.path.exists(dest_file):
         with open(dest_file, "w") as f:
@@ -42,18 +44,18 @@ def generate_page(from_path, template_path, dest_path):
     with open(dest_file, "x") as f:
         f.write(page)
 
-def generate_page_recursive(from_path, template_path, dest_path):
+def generate_page_recursive(from_path, template_path, dest_path, basepath):
     if not os.path.exists(from_path):
         raise Exception(f"path {from_path} does not exist")
     
     if os.path.isfile(from_path):
-        generate_page(from_path, template_path, dest_path)
+        generate_page(from_path, template_path, dest_path, basepath)
         return
 
     for item in os.listdir(from_path):
         sub_from_path = os.path.join(from_path, item)
-        sub_dest_path = sub_from_path.replace(from_path, dest_path)
-        generate_page_recursive(sub_from_path, template_path, sub_dest_path)
+        sub_dest_path = os.path.join(dest_path, item)
+        generate_page_recursive(sub_from_path, template_path, sub_dest_path, basepath)
 
 def extract_title(markdown):
     blocks = markdown_to_blocks(markdown)
