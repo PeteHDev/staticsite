@@ -17,8 +17,8 @@ def extract_markdown_links(text):
 def copy_files_from_to(src_path, dst_path):
     if not os.path.exists(src_path):
         raise ValueError(f"error: src path <{src_path}> does not exist")
-    
-    cleanup_folder(dst_path)
+    if not os.path.exists(dst_path):
+        os.makedirs(dst_path)
     
     for item in os.listdir(src_path):
         full_path = os.path.join(src_path, item)

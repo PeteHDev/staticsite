@@ -1,17 +1,19 @@
+import os
+import shutil
 from textnode import TextNode, TextType
 from markdown_to_html_node import markdown_to_html_node
 from util import copy_files_from_to
-from generate_page import extract_title
+from generate_page import extract_title, generate_page
 
 def main():
-    #copy_files_from_to("static", "public")
-    md = """
-# Hello
-This is **bold** title
-With multiple _lines_
-"""
+    if os.path.exists("public"):
+        shutil.rmtree("public")
+    
     try:
-        print(extract_title(md))
-    except EOFError as e:
-        print(f"error: {e}")
+        copy_files_from_to("static", "public")
+        generate_page("content/index.md", "template.html", "public/index.html")
+    except Exception as err:
+        print(f"error: {err}")
+        exit(1)
+
 main()
