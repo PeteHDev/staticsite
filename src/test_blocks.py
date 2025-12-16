@@ -4,14 +4,15 @@ from blocks import markdown_to_blocks, block_to_block_type, BlockType
 
 class TestBlocks(unittest.TestCase):
     def test_markdown_to_blocks_basic(self):
-        md = """This is **bolded** paragraph
+        md = """
+This is **bolded** paragraph
 
 This is another paragraph with _italic_ text and `code` here
 This is the same paragraph on a new line
 
 - This is a list
 - with items
-    """
+"""
         blocks = markdown_to_blocks(md)
         self.assertEqual(
             blocks,
@@ -24,14 +25,14 @@ This is the same paragraph on a new line
 
     def test_markdown_to_blocks_excessive_indentation(self):
         md = """
-    This is **bolded** paragraph
+This is **bolded** paragraph
 
-    This is another paragraph with _italic_ text and `code` here
-    This is the same paragraph on a new line
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
 
-    - This is a list
-    - with items
-    """
+- This is a list
+- with items
+"""
         blocks = markdown_to_blocks(md)
         self.assertEqual(
             blocks,
@@ -44,7 +45,7 @@ This is the same paragraph on a new line
 
     def test_markdown_to_blocks_excessive_newlines(self):
         md = """
-    This is **bolded** paragraph
+This is **bolded** paragraph
 
     
 
@@ -52,8 +53,8 @@ This is the same paragraph on a new line
 
     
 
-    This is another paragraph with _italic_ text and `code` here
-    This is the same paragraph on a new line
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
 
     
 
@@ -62,9 +63,9 @@ This is the same paragraph on a new line
 
 
 
-    - This is a list
-    - with items
-    """
+- This is a list
+- with items
+"""
         blocks = markdown_to_blocks(md)
         self.assertEqual(
             blocks,
@@ -74,6 +75,27 @@ This is the same paragraph on a new line
                 "- This is a list\n- with items",
             ],
         )
+
+    def test_markdown_to_blocks_code_block(self):
+        md = """
+    
+```
+func main(){
+    fmt.Println("Aiya, Ambar!")
+}
+```
+
+This is a paragraph
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                '```\nfunc main(){\n    fmt.Println("Aiya, Ambar!")\n}\n```',
+                'This is a paragraph',
+            ]
+        )
+
 
 class TestBlockType(unittest.TestCase):
     def test_block_type_heading(self):

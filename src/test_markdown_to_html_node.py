@@ -4,13 +4,13 @@ from markdown_to_html_node import markdown_to_html_node
 class TestMarkdwonToHTMLNode(unittest.TestCase):
     def test_paragraphs(self):
         md = """
-    This is **bolded** paragraph
-    text in a p
-    tag here
+This is **bolded** paragraph
+text in a p
+tag here
 
-    This is another paragraph with _italic_ text and `code` here
+This is another paragraph with _italic_ text and `code` here
 
-    """
+"""
 
         node = markdown_to_html_node(md)
         html = node.to_html()
@@ -21,11 +21,11 @@ class TestMarkdwonToHTMLNode(unittest.TestCase):
 
     def test_codeblock(self):
         md = """
-    ```
-    This is text that _should_ remain
-    the **same** even with inline stuff
-    ```
-    """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
 
         node = markdown_to_html_node(md)
         html = node.to_html()
@@ -36,10 +36,10 @@ class TestMarkdwonToHTMLNode(unittest.TestCase):
 
     def test_lists(self):
         md1 = """
-    1. oi1
-    2. oi2
-    3. oi3
-    """
+1. oi1
+2. oi2
+3. oi3
+"""
 
         node1 = markdown_to_html_node(md1)
         html1 = node1.to_html()
@@ -49,10 +49,10 @@ class TestMarkdwonToHTMLNode(unittest.TestCase):
         )
 
         md2 = """
-    - ui1
-    - ui2
-    - ui3
-    """
+- ui1
+- ui2
+- ui3
+"""
         
         node2 = markdown_to_html_node(md2)
         html2 = node2.to_html()
@@ -62,10 +62,10 @@ class TestMarkdwonToHTMLNode(unittest.TestCase):
         )
 
         md3 = """
-    >Some **bold** quote
-    >Some _italic_ quote
-    >Some inline `code` quote 
-    """
+>Some **bold** quote
+>Some _italic_ quote
+>Some inline `code` quote 
+"""
 
         node3 = markdown_to_html_node(md3)
         html3 = node3.to_html()
@@ -92,6 +92,9 @@ class TestMarkdwonToHTMLNode(unittest.TestCase):
     """
 
         node = markdown_to_html_node(md)
+        print("################################")
+        print([md])
+        print("################################")
         html = node.to_html()
         self.assertEqual(
             html,
@@ -100,28 +103,28 @@ class TestMarkdwonToHTMLNode(unittest.TestCase):
 
     def test_mixed_blocks(self):
         md = """
-    This is **bolded** paragraph
-    text in a p
-    tag here
+This is **bolded** paragraph
+text in a p
+tag here
 
-    This is another paragraph with _italic_ text and `code` here
+This is another paragraph with _italic_ text and `code` here
 
-    ```
-    This is text that _should_ remain
-    the **same** even with inline stuff
-    ```
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
 
-    1. oi1
-    2. oi2
-    3. oi3
+1. oi1
+2. oi2
+3. oi3
 
-    - ui1
-    - ui2
-    - ui3
+- ui1
+- ui2
+- ui3
 
-    >Some **bold** quote
-    >Some _italic_ quote
-    >Some inline `code` quote 
+>Some **bold** quote
+>Some _italic_ quote
+>Some inline `code` quote 
 
     # H1
 
